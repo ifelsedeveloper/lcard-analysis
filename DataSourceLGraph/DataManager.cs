@@ -42,10 +42,11 @@ namespace LGA.DataSourceLGraph
                                     "Data as Time Sequence"};
 
         static Color[] colors = {
-                                    Colors.Red,
-                                    Colors.Green,
-                                    Colors.Blue,
-                                    Colors.DarkBlue
+                                    Colors.Blue, 
+                                    Colors.Red, 
+                                    Colors.Green, 
+                                    Colors.DarkOrange, 
+                                    Colors.Chocolate 
                                 };
 
         public DataManager()

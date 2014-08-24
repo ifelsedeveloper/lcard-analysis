@@ -13,6 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using LGA.DataSourceLGraph;
+using DevExpress.Charts;
+using DevExpress.Xpf.Charts;
+using System.Data;
+using System.Collections.ObjectModel;
+using DevExpress.Xpf.Core;
+using System.Windows.Forms.Integration;
+using DevExpress.XtraCharts;
+using ZedGraph;
 
 namespace LGA
 {
@@ -22,11 +30,12 @@ namespace LGA
     public partial class MainWindow : Window
     {
 
-        LGraphData currentData;
-
+        LGraphData currentRecord;
+        ZedGraphControl graphControl = new ZedGraphControl();
         public MainWindow()
         {
             InitializeComponent();
+            graphHost.Child = graphControl;
         }
 
         private void ExitCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -80,11 +89,22 @@ namespace LGA
 
         private void newFileOpened(LGraphData data)
         {
-            currentData = data;
+            currentRecord = data;
             currentAction.Text = "Чтение данных завершено";
             dataGridFileProperty.ItemsSource = data.HeaderItems;
             dataGridChannelProperty.ItemsSource = data.DataChannels;
+            ZedGraphHelper.ZedGraphHelper.CreateGraph(ref graphControl, data.DataChannels);
+            foreach (var dataChannel in data.DataChannels)
+            {
+                dataChannel.PropertyChanged += dataChannel_PropertyChanged;
+            }
         }
+
+        void dataChannel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            ZedGraphHelper.ZedGraphHelper.CreateGraph(ref graphControl, currentRecord.DataChannels);
+        }
+
 
         private void AboutCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {

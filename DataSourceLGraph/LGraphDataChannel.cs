@@ -31,6 +31,11 @@ namespace LGA.DataSourceLGraph
             }
         }
 
+        public System.Drawing.Color ChannelSystemColor
+        {
+            get { return System.Drawing.Color.FromArgb(_channelColor.A, _channelColor.R, _channelColor.G, _channelColor.B); }
+        }
+
         private bool _enabled;
         public bool Enabled
         {
