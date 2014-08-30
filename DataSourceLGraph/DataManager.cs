@@ -110,7 +110,8 @@ namespace LGA.DataSourceLGraph
                             ChannelColor = colors[i%4],
                             Values = record.ch[i],
                             Times = record.time,
-                            Enabled = true
+                            Enabled = true,
+                            TypeChannel = LGraphDataChannel.ChannelTypes[i%3].Id
                         });
                     }
 

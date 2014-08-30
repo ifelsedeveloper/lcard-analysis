@@ -48,6 +48,7 @@
     <Compile Include="LGraphData.cs" />
     <Compile Include="DataManager.cs" />
     <Compile Include="LGraphDataChannel.cs" />
+    <Compile Include="LGraphDataType.cs" />
     <Compile Include="LGraphHeaderItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

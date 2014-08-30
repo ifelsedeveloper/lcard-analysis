@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:custom="clr-namespace:LGA"
         xmlns:dxc="http://schemas.devexpress.com/winfx/2008/xaml/charts" x:Class="LGA.MainWindow"
-        Title="Програмный комплекс обработки L-Card данных" Height="768" Width="1024">
+        Title="Програмный комплекс обработки L-Card данных" Height="768" Width="1366">
 
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Open" Executed="OpenFile_Executed" />
@@ -85,6 +85,19 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <CheckBox IsChecked="{Binding Path=Enabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="32,0,0,0" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn>
+                                        <DataGridTemplateColumn.Header>
+                                            <Label Content="Тип Датчика"></Label>
+                                        </DataGridTemplateColumn.Header>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <ComboBox ItemsSource="{Binding Path=ChannelTypes}"
+                                                    DisplayMemberPath="Description"
+                                                    SelectedValue="{Binding Path=TypeChannel, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                    SelectedValuePath="Id"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>

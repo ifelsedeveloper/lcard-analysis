@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,6 +47,30 @@ namespace LGA.DataSourceLGraph
                 OnPropertyChanged();
             }
         }
+
+        private CannelType _typeChannel;
+        public CannelType TypeChannel
+        {
+            get { return _typeChannel; }
+            set
+            {
+                _typeChannel = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public static ObservableCollection<LGraphDataType> ChannelTypes
+        {
+            get
+            {
+                ObservableCollection<LGraphDataType> channelTypes = new ObservableCollection<LGraphDataType>();
+                channelTypes.Add(new LGraphDataType() { Id = CannelType.Pressure, Description = "Датчик давления" });
+                channelTypes.Add(new LGraphDataType() { Id = CannelType.Frequency, Description = "Датчик частоты вращения" });
+                channelTypes.Add(new LGraphDataType() { Id = CannelType.Fuel, Description = "Датчик расхода топлива" });
+                return channelTypes;
+            }
+        }
+
 
         public double[] Values;
         public double[] Times;
