@@ -160,12 +160,20 @@ namespace LGA.DataSourceLGraph
                 res.ExperimentTime = findTextValue(headerLines, "Experiment Time");
                 res.HeaderItems.Add(new LGraphHeaderItem() { Title = "Время эксперимента", Value = res.ExperimentTime });
 
-                //validation region
+                //validation region Kadrs Number | Number of frames
                 int? NumberOfFrames = findIntValue(headerLines, "Number of frames");
                 if (NumberOfFrames != null)
+                {
                     res.KadrsNumber = (int)NumberOfFrames;
+                }
                 else
-                    return null;
+                {
+                    NumberOfFrames = findIntValue(headerLines, "Kadrs Number");
+                    if (NumberOfFrames == null) 
+                        return null;
+                    else
+                        res.KadrsNumber = (int)NumberOfFrames;
+                }
                 res.HeaderItems.Add(new LGraphHeaderItem() { Title = "Число записей", Value = NumberOfFrames.ToString() });
                 //Number Of Channels
                 int? NumberOfChannels = findIntValue(headerLines, "Number Of Channel");
