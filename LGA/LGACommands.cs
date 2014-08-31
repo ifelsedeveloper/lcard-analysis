@@ -15,6 +15,10 @@ namespace LGA
 
         static RoutedUICommand about = new RoutedUICommand("О Программе", "About", typeof(LGACommands));
 
-        public static RoutedUICommand About { get { return about; } } 
+        public static RoutedUICommand About { get { return about; } }
+
+        static RoutedUICommand calculate = new RoutedUICommand("Вычислить Частоту Вращения", "Calculate", typeof(LGACommands));
+
+        public static RoutedUICommand Calculate { get { return calculate; } }
     }
 }

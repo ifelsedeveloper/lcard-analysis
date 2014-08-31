@@ -13,7 +13,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using LGA.DataSourceLGraph;
-using DevExpress.Charts;
 using DevExpress.Xpf.Charts;
 using System.Data;
 using System.Collections.ObjectModel;
@@ -21,6 +20,7 @@ using DevExpress.Xpf.Core;
 using System.Windows.Forms.Integration;
 using DevExpress.XtraCharts;
 using ZedGraph;
+using LGA.Calc;
 
 namespace LGA
 {
@@ -111,6 +111,60 @@ namespace LGA
             
         }
 
+        private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (currentRecord == null) return;
+            lock (currentRecord)
+            {
+                RecordCalculation calc = new RecordCalculation(currentRecord);
+                ChannelCalcFrequency calcFreq = calc.getFrequencyCalc();
+                calcFreq.Caclculate();
+                AddTabItemGraph("Частота вращения от времени", calcFreq.T_vu, calcFreq.Vu, "секунды", "об/мин");
+            }
+            
+        }
+
+        private TabItem AddTabItemGraph(string name, double[] x, double[] y, string label_x, string label_y)
+        {
+            int count = mainContentTab.Items.Count;
+
+            // create new tab item
+            TabItem tab = new TabItem();
+            tab.Header = string.Format(name);
+            tab.Name = string.Format("tab{0}", count);
+
+            // add controls to tab item, this case I added just a textbox
+            // Create a chart.
+            DevExpress.Xpf.Charts.ChartControl chart = new DevExpress.Xpf.Charts.ChartControl();
+
+            // Create a diagram.
+            DevExpress.Xpf.Charts.XYDiagram2D diagram = new DevExpress.Xpf.Charts.XYDiagram2D();
+            diagram.AxisX = new AxisX2D();
+            diagram.AxisY = new AxisY2D();
+            diagram.AxisX.Title = new DevExpress.Xpf.Charts.AxisTitle();
+            diagram.AxisY.Title = new DevExpress.Xpf.Charts.AxisTitle();
+            diagram.AxisX.Title.Content = label_x;
+            diagram.AxisY.Title.Content = label_y;
+            chart.Diagram = diagram;
+            
+            // Create a bar series.
+            LineSeries2D series = new LineSeries2D();
+            series.ArgumentDataMember = "Argument";
+            series.ValueDataMember = "Value";
+            
+            diagram.Series.Add(series);
+
+            // Add points to the series.
+            ObservableCollection<DevExpress.Xpf.Charts.SeriesPoint> collection = new ObservableCollection<DevExpress.Xpf.Charts.SeriesPoint>();
+            for (int i = 0; i < x.Length; i++)
+            {
+                collection.Add(new DevExpress.Xpf.Charts.SeriesPoint(x[i], y[i]));
+            }
+            series.DataSource = collection;
+            tab.Content = chart;
+            mainContentTab.Items.Add(tab);
+            return tab;
+        } 
 
     }
 }

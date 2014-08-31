@@ -33,7 +33,7 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -67,6 +67,10 @@
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>true</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DevExpress.Charts.v13.2.Core, Version=13.2.5.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
@@ -176,6 +180,10 @@
       <Project>{07e0b080-d9c2-408e-a691-0adddeaa13e2}</Project>
       <Name>DataSourceLGraph</Name>
     </ProjectReference>
+    <ProjectReference Include="..\LGA.Calc\LGA.Calc.csproj">
+      <Project>{63b25ec3-5daf-4a64-9515-f1b8168e9d8d}</Project>
+      <Name>LGA.Calc</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helper\" />
@@ -204,6 +212,12 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(SolutionDir)OpenCvSharp-2.4.5-x86-20131203\opencv_core245.dll" "$(TargetDir)"
+copy "$(SolutionDir)OpenCvSharp-2.4.5-x86-20131203\opencv_core245d.dll" "$(TargetDir)"
+copy "$(SolutionDir)OpenCvSharp-2.4.5-x86-20131203\opencv_imgproc245.dll" "$(TargetDir)"
+copy "$(SolutionDir)OpenCvSharp-2.4.5-x86-20131203\opencv_imgproc245d.dll" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

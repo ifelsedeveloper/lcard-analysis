@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGA", "LGA\LGA.csproj", "{8
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSourceLGraph", "DataSourceLGraph\DataSourceLGraph.csproj", "{07E0B080-D9C2-408E-A691-0ADDDEAA13E2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LGA.Calc", "LGA.Calc\LGA.Calc.csproj", "{63B25EC3-5DAF-4A64-9515-F1B8168E9D8D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{07E0B080-D9C2-408E-A691-0ADDDEAA13E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07E0B080-D9C2-408E-A691-0ADDDEAA13E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07E0B080-D9C2-408E-A691-0ADDDEAA13E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63B25EC3-5DAF-4A64-9515-F1B8168E9D8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63B25EC3-5DAF-4A64-9515-F1B8168E9D8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63B25EC3-5DAF-4A64-9515-F1B8168E9D8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63B25EC3-5DAF-4A64-9515-F1B8168E9D8D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -9,6 +9,7 @@
         <CommandBinding Command="ApplicationCommands.Open" Executed="OpenFile_Executed" />
         <CommandBinding Command="{x:Static custom:LGACommands.Exit}" CanExecute="ExitCommand_CanExecute" Executed="ExitCommand_Executed"/>
         <CommandBinding Command="{x:Static custom:LGACommands.About}" Executed="AboutCommand_Executed"/>
+        <CommandBinding Command="{x:Static custom:LGACommands.Calculate}" Executed="CommandBinding_Executed"/>
     </Window.CommandBindings>
 
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -20,6 +21,7 @@
         <Menu Grid.Row="0">
             <MenuItem Header="Файл">
                 <MenuItem Header="Открыть" Command="ApplicationCommands.Open"/>
+                <MenuItem Command="{x:Static custom:LGACommands.Calculate}"/>
                 <Separator/>
                 <MenuItem Command="{x:Static custom:LGACommands.Exit}"/>
             </MenuItem>
@@ -27,7 +29,7 @@
                 <MenuItem Command="{x:Static custom:LGACommands.About}"/>
             </MenuItem>
         </Menu>
-        <TabControl Grid.Row="1">
+        <TabControl Grid.Row="1" Name="mainContentTab">
             <TabItem Header="Исходные Данные">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -107,6 +109,7 @@
                     </Grid>
                 </Grid>
             </TabItem>
+            
         </TabControl>
         <StatusBar Grid.Row="2">
             <StatusBar.ItemsPanel>

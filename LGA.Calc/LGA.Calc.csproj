@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{07E0B080-D9C2-408E-A691-0ADDDEAA13E2}</ProjectGuid>
+    <ProjectGuid>{63B25EC3-5DAF-4A64-9515-F1B8168E9D8D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LGA.DataSourceLGraph</RootNamespace>
-    <AssemblyName>DataSourceLGraph</AssemblyName>
+    <RootNamespace>LGA.Calc</RootNamespace>
+    <AssemblyName>LGA.Calc</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -21,7 +21,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -31,13 +30,13 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PresentationCore" />
+    <Reference Include="OpenCvSharp">
+      <HintPath>..\OpenCvSharp-2.4.5-x86-20131203\OpenCvSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,13 +44,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="INotifyPropertyChangedHelper.cs" />
-    <Compile Include="LGraphData.cs" />
-    <Compile Include="DataManager.cs" />
-    <Compile Include="LGraphDataChannel.cs" />
-    <Compile Include="LGraphDataType.cs" />
-    <Compile Include="LGraphHeaderItem.cs" />
+    <Compile Include="ChannelCalcFrequency.cs" />
+    <Compile Include="ChannelCalcPressure.cs" />
+    <Compile Include="FactoryChannelCalc.cs" />
+    <Compile Include="HelperOpenCV.cs" />
+    <Compile Include="IChannelCalc.cs" />
+    <Compile Include="RecordCalculation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DataSourceLGraph\DataSourceLGraph.csproj">
+      <Project>{07e0b080-d9c2-408e-a691-0adddeaa13e2}</Project>
+      <Name>DataSourceLGraph</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
