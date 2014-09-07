@@ -34,11 +34,22 @@ namespace LGA
         LGraphData currentRecord;
         ZedGraphControl graphControl = new ZedGraphControl();
         private static string tagTabFrequency = "tabFreq";
+        private static string tagAccTime = "tabAccTime";
+        private static PointD _selectedPoint = new PointD();
 
         public MainWindow()
         {
             InitializeComponent();
+            ZedGraphManager.ZedGraphHelper.newPointSelected += StartPointSelected;
+            ZedGraphManager.ZedGraphHelper.AddSelectPointAction(graphControl);
             graphHost.Child = graphControl;
+        }
+
+        private void StartPointSelected(ZedGraphControl zgc, PointD value)
+        {
+            _selectedPoint = value;
+            Properties.Settings.Default.StartPoint = value.X;
+            Properties.Settings.Default.Save();
         }
 
         private void ExitCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -96,7 +107,8 @@ namespace LGA
             currentAction.Text = "Чтение данных завершено";
             dataGridFileProperty.ItemsSource = data.HeaderItems;
             dataGridChannelProperty.ItemsSource = data.DataChannels;
-            ZedGraphHelper.ZedGraphHelper.CreateGraph(ref graphControl, data.DataChannels);
+            ZedGraphManager.ZedGraphHelper.CreateGraph(ref graphControl, data.DataChannels);
+            
             foreach (var dataChannel in data.DataChannels)
             {
                 dataChannel.PropertyChanged += dataChannel_PropertyChanged;
@@ -105,7 +117,7 @@ namespace LGA
 
         void dataChannel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            ZedGraphHelper.ZedGraphHelper.CreateGraph(ref graphControl, currentRecord.DataChannels);
+            ZedGraphManager.ZedGraphHelper.CreateGraph(ref graphControl, currentRecord.DataChannels);
         }
 
 
@@ -120,11 +132,23 @@ namespace LGA
             lock (currentRecord)
             {
                 RecordCalculation calc = new RecordCalculation(currentRecord);
+                
                 ChannelCalcFrequency calcFreq = calc.getFrequencyCalc();
                 calcFreq.Initialize(Properties.Settings.Default.NumberOfPulses, Properties.Settings.Default.NumberOfSmooth);
-                calcFreq.Caclculate();
+                if(calcFreq.Caclculate()){
+                    AddTabItemGraph(tagTabFrequency,"Частота вращения от времени", calcFreq.T_vu, calcFreq.Vu, "секунды", "об/мин");
+                    AddTabItemGraph(tagAccTime, "Ускорение от времени", calcFreq.T_ac, calcFreq.Ac, "секунды", "рад/с^2");
+                    ChannelCalcPressure calcPressure = calc.getPressureCalc();
+                    calcPressure.Initialize(Properties.Settings.Default.StartPoint, Properties.Settings.Default.LengthSegment, Properties.Settings.Default.NumberOfPulses, calcFreq.Fronts);
+                    if (calcPressure.Caclculate())
+                    {
+
+                    }
+                }
+
                 
-                AddTabItemGraph(tagTabFrequency,"Частота вращения от времени", calcFreq.T_vu, calcFreq.Vu, "секунды", "об/мин");
+
+                
             }
             
         }
@@ -132,41 +156,17 @@ namespace LGA
         private TabItem AddTabItemGraph(string tag,string name, double[] x, double[] y, string label_x, string label_y)
         {
             int count = mainContentTab.Items.Count;
-            mainContentTab.Items.Remove(mainContentTab.Items.Cast<TabItem>().Where(i => i.Name == tagTabFrequency).SingleOrDefault());
+            mainContentTab.Items.Remove(mainContentTab.Items.Cast<TabItem>().Where(i => i.Name == tag).SingleOrDefault());
             // create new tab item
             TabItem tab = new TabItem();
             tab.Header = name;
             tab.Name = tag;
 
-            // add controls to tab item, this case I added just a textbox
-            // Create a chart.
-            DevExpress.Xpf.Charts.ChartControl chart = new DevExpress.Xpf.Charts.ChartControl();
-
-            // Create a diagram.
-            DevExpress.Xpf.Charts.XYDiagram2D diagram = new DevExpress.Xpf.Charts.XYDiagram2D();
-            diagram.AxisX = new AxisX2D();
-            diagram.AxisY = new AxisY2D();
-            diagram.AxisX.Title = new DevExpress.Xpf.Charts.AxisTitle();
-            diagram.AxisY.Title = new DevExpress.Xpf.Charts.AxisTitle();
-            diagram.AxisX.Title.Content = label_x;
-            diagram.AxisY.Title.Content = label_y;
-            chart.Diagram = diagram;
-            
-            // Create a bar series.
-            LineSeries2D series = new LineSeries2D();
-            series.ArgumentDataMember = "Argument";
-            series.ValueDataMember = "Value";
-            
-            diagram.Series.Add(series);
-
-            // Add points to the series.
-            ObservableCollection<DevExpress.Xpf.Charts.SeriesPoint> collection = new ObservableCollection<DevExpress.Xpf.Charts.SeriesPoint>();
-            for (int i = 0; i < x.Length; i++)
-            {
-                collection.Add(new DevExpress.Xpf.Charts.SeriesPoint(x[i], y[i]));
-            }
-            series.DataSource = collection;
-            tab.Content = chart;
+            WindowsFormsHost hostZedGraph = new WindowsFormsHost();
+            ZedGraphControl controlGraph = new ZedGraphControl();
+            ZedGraphManager.ZedGraphHelper.CreateGraph(ref controlGraph, x, label_x, y, label_y, System.Drawing.Color.FromArgb(0, 240, 0), name, "");
+            hostZedGraph.Child = controlGraph;
+            tab.Content = hostZedGraph;
             mainContentTab.Items.Add(tab);
             return tab;
         }

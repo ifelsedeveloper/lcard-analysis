@@ -5,7 +5,7 @@ using System.Text;
 using ZedGraph;
 using System.Drawing;
 
-namespace LGA.ZedGraphHelper
+namespace LGA.ZedGraphManager
 {
     public class StylePoint
     {

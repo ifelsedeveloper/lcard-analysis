@@ -21,5 +21,10 @@ namespace LGA.Calc
         {
             return (ChannelCalcFrequency)_calcChannels.Where(calc => calc.GetType() == typeof(ChannelCalcFrequency)).FirstOrDefault();
         }
+
+        public ChannelCalcPressure getPressureCalc()
+        {
+            return (ChannelCalcPressure)_calcChannels.Where(calc => calc.GetType() == typeof(ChannelCalcPressure)).FirstOrDefault();
+        }
     }
 }

@@ -6,16 +6,27 @@ using ZedGraph;
 using System.Drawing;
 using LGA.DataSourceLGraph;
 
-namespace LGA.ZedGraphHelper
+namespace LGA.ZedGraphManager
 {
     static public class ZedGraphHelper
     {
+
+        private static PointD _lastShowedPoint = new PointD();
+        private static PointD _lastClickedPoint = new PointD();
+        private static ZedGraphControl _lastZedgraphControlMenu = null;
+
+        public static Action<ZedGraphControl, PointD> newPointSelected;
+        public static PointD LastClickedPoint
+        {
+            get { return new PointD(_lastClickedPoint.X, _lastClickedPoint.Y); }
+        }
+
         public static void CreateGraph(ref ZedGraphControl zgc, 
-            ref double[] x, 
+            double[] x, 
             string label_x, 
-            ref double[][] y,
-            Color[] colors,
+            double[] y,
             string label_y,
+            Color color,
             string name, 
             string title)
         {
@@ -44,12 +55,10 @@ namespace LGA.ZedGraphHelper
             // Нам достаточно 20-ти точек
             int filteredCount = 10000;
 
-            for (int i = 0; i < y.Count(); i++)
-            {
-                FilteredPointList filteredList = new FilteredPointList(x, y[i]);
-                filteredList.SetBounds(filteredXMin, filteredXMax, filteredCount);
-                LineItem myCurve = myPane.AddCurve(name, filteredList, colors[i], SymbolType.None);
-            }
+
+            FilteredPointList filteredList = new FilteredPointList(x, y);
+            filteredList.SetBounds(filteredXMin, filteredXMax, filteredCount);
+            LineItem myCurve = myPane.AddCurve(name, filteredList, color, SymbolType.None);
             
             // Tell ZedGraph to refigure the
             // axes since the data have changed
@@ -101,6 +110,69 @@ namespace LGA.ZedGraphHelper
             zgc.Invalidate();
         }
 
+        /// <summary>
+        /// Обработчик события, который вызывается, перед показом контекстного меню
+        /// </summary>
+        /// <param name="sender">Компонент ZedGraph</param>
+        /// <param name="menuStrip">Контекстное меню, которое будет показано</param>
+        /// <param name="mousePt">Координаты курсора мыши</param>
+        /// <param name="objState">Состояние контекстного меню. Описывает объект, на который кликнули.</param>
+        public static void zedGraph_ContextMenuBuilder(ZedGraphControl sender,
+            System.Windows.Forms.ContextMenuStrip menuStrip,
+            Point mousePt,
+            ZedGraphControl.ContextMenuObjectState objState)
+        {
+
+            // Добавим свой пункт меню
+            System.Windows.Forms.ToolStripItem newMenuItem = new System.Windows.Forms.ToolStripMenuItem("Выбрать как начальную точку");
+            newMenuItem.Click += selectPoint_Click;
+            menuStrip.Items.Add(newMenuItem);
+            _lastZedgraphControlMenu = sender;
+        }
+
+        static void selectPoint_Click(object sender, EventArgs e)
+        {
+            _lastClickedPoint = _lastShowedPoint;
+            DrawSelectedPoint(_lastZedgraphControlMenu);
+            newPointSelected(_lastZedgraphControlMenu,_lastClickedPoint);
+        }
+
+        private static void DrawSelectedPoint(ZedGraphControl zgc)
+        {
+            GraphPane myPane = zgc.GraphPane;
+                // !!! Минимум
+                // Создадим кривую с названием "Scatter".
+                // Обводка ромбиков будут рисоваться голубым цветом (Color.Blue),
+                // Опорные точки - ромбики (SymbolType.Diamond)
+                myPane.CurveList.RemoveAll(curve => (string)curve.Tag == "selectedPoint");
+                LineItem myCurveInf = myPane.AddCurve("", new double[] { _lastClickedPoint.X }, new double[] { _lastClickedPoint.Y }, System.Drawing.Color.Red, SymbolType.Diamond);
+                myCurveInf.Tag = "selectedPoint";
+                // !!!
+                // У кривой линия будет невидимой
+                myCurveInf.Line.IsVisible = false;
+
+                // !!!
+                // Цвет заполнения отметок (ромбиков) - колубой
+                myCurveInf.Symbol.Fill.Color = System.Drawing.Color.Red;
+                myCurveInf.Line.Width = 4;
+                // !!!
+                // Тип заполнения - сплошная заливка
+                myCurveInf.Symbol.Fill.Type = FillType.Solid;
+                // !!!
+                // Размер ромбиков
+                myCurveInf.Symbol.Size = 10;
+
+           zgc.AxisChange();
+           zgc.Invalidate();
+               
+        }
+
+        public static void AddSelectPointAction(ZedGraphControl zgc)
+        {
+            zgc.ContextMenuBuilder +=
+            new ZedGraphControl.ContextMenuBuilderEventHandler(ZedGraphManager.ZedGraphHelper.zedGraph_ContextMenuBuilder);
+        }
+
         public static void ShowEventsOnGraph(ref ZedGraphControl zgc)
         {
             if (!zgc.IsShowPointValues)
@@ -133,8 +205,27 @@ namespace LGA.ZedGraphHelper
 
             // Сформируем строку
             string result = string.Format("X: {0:F3}\nY: {1:F3}", point.X, point.Y);
-
+            _lastShowedPoint = new PointD(curve[iPt].X, curve[iPt].Y);
             return result;
+        }
+
+        /// <summary>
+        /// Обработчик события перемещения точки.
+        /// При перемещении точки, информация о ней записывается в заголовок окна
+        /// </summary>
+        /// <param name="sender">Компонент ZedGraph</param>
+        /// <param name="pane">Панель с графиком</param>
+        /// <param name="curve">Кривая, точку которой переместили</param>
+        /// <param name="iPt">Номер точки</param>
+        /// <returns>Метод должен возвращать строку</returns>
+        static string zedGraph_PointEditEvent(ZedGraphControl sender,
+            GraphPane pane, CurveItem curve, int iPt)
+        {
+            string title = string.Format("Начальная точка координаты: ({1}; {2})", curve[iPt].X, curve[iPt].Y);
+
+            _lastClickedPoint = new PointD(curve[iPt].X, curve[iPt].Y);
+
+            return title;
         }
 
     }

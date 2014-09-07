@@ -8,8 +8,8 @@
     <Setting Name="NumberOfSmooth" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">65</Value>
     </Setting>
-    <Setting Name="StartPoint" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">64</Value>
+    <Setting Name="StartPoint" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="LengthSegment" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">512</Value>

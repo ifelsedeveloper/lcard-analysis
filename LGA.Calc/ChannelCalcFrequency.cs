@@ -25,6 +25,11 @@ namespace LGA.Calc
         private int number_smooth = 65;
 
         double[] fronts;
+        public double[] Fronts
+        {
+            get { return fronts; }
+        }
+
         double[] data_vu;
 
         double[] t_vu;
