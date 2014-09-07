@@ -157,6 +157,7 @@ namespace LGA.DataSourceLGraph
                     nLine++;
                 }
                 //parsing headers
+                res.HeaderItems.Add(new LGraphHeaderItem() { Title = "Метоположение", Value = path });
 
                 res.ExperimentTime = findTextValue(headerLines, "Experiment Time");
                 res.HeaderItems.Add(new LGraphHeaderItem() { Title = "Время эксперимента", Value = res.ExperimentTime });

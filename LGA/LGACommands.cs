@@ -20,5 +20,9 @@ namespace LGA
         static RoutedUICommand calculate = new RoutedUICommand("Вычислить Частоту Вращения", "Calculate", typeof(LGACommands));
 
         public static RoutedUICommand Calculate { get { return calculate; } }
+
+        static RoutedUICommand settingsCalc = new RoutedUICommand("Параметры расчета", "SettingsCalc", typeof(LGACommands));
+
+        public static RoutedUICommand SettingsCalc { get { return settingsCalc; } }
     }
 }

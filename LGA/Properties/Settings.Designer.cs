@@ -22,5 +22,77 @@ namespace LGA.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("512")]
+        public int NumberOfPulses {
+            get {
+                return ((int)(this["NumberOfPulses"]));
+            }
+            set {
+                this["NumberOfPulses"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("65")]
+        public int NumberOfSmooth {
+            get {
+                return ((int)(this["NumberOfSmooth"]));
+            }
+            set {
+                this["NumberOfSmooth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("64")]
+        public int StartPoint {
+            get {
+                return ((int)(this["StartPoint"]));
+            }
+            set {
+                this["StartPoint"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("512")]
+        public int LengthSegment {
+            get {
+                return ((int)(this["LengthSegment"]));
+            }
+            set {
+                this["LengthSegment"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double VerticalOffset {
+            get {
+                return ((double)(this["VerticalOffset"]));
+            }
+            set {
+                this["VerticalOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double SensorConversionFactor {
+            get {
+                return ((double)(this["SensorConversionFactor"]));
+            }
+            set {
+                this["SensorConversionFactor"] = value;
+            }
+        }
     }
 }

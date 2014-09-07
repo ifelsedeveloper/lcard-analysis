@@ -9,7 +9,8 @@
         <CommandBinding Command="ApplicationCommands.Open" Executed="OpenFile_Executed" />
         <CommandBinding Command="{x:Static custom:LGACommands.Exit}" CanExecute="ExitCommand_CanExecute" Executed="ExitCommand_Executed"/>
         <CommandBinding Command="{x:Static custom:LGACommands.About}" Executed="AboutCommand_Executed"/>
-        <CommandBinding Command="{x:Static custom:LGACommands.Calculate}" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static custom:LGACommands.Calculate}" Executed="Calculate_Executed"/>
+        <CommandBinding Command="{x:Static custom:LGACommands.SettingsCalc}" Executed="Settings_Executed"/>
     </Window.CommandBindings>
 
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -24,6 +25,9 @@
                 <MenuItem Command="{x:Static custom:LGACommands.Calculate}"/>
                 <Separator/>
                 <MenuItem Command="{x:Static custom:LGACommands.Exit}"/>
+            </MenuItem>
+            <MenuItem Header="Настройки">
+                <MenuItem Command="{x:Static custom:LGACommands.SettingsCalc}"/>
             </MenuItem>
             <MenuItem Header="Помощь">
                 <MenuItem Command="{x:Static custom:LGACommands.About}"/>

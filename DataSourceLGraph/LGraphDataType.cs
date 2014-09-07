@@ -10,7 +10,7 @@ namespace LGA.DataSourceLGraph
     {
         Pressure = 0,
         Frequency = 1,
-        Fuel = 2
+        StartCycle = 2
     }
 
     public class LGraphDataType : INotifyPropertyChangedHelper, IComparable<LGraphDataType>

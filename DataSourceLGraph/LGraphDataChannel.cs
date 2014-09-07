@@ -66,7 +66,7 @@ namespace LGA.DataSourceLGraph
                 ObservableCollection<LGraphDataType> channelTypes = new ObservableCollection<LGraphDataType>();
                 channelTypes.Add(new LGraphDataType() { Id = CannelType.Pressure, Description = "Датчик давления" });
                 channelTypes.Add(new LGraphDataType() { Id = CannelType.Frequency, Description = "Датчик частоты вращения" });
-                channelTypes.Add(new LGraphDataType() { Id = CannelType.Fuel, Description = "Датчик расхода топлива" });
+                channelTypes.Add(new LGraphDataType() { Id = CannelType.StartCycle, Description = "Датчик начала рабочего цикла" });
                 return channelTypes;
             }
         }

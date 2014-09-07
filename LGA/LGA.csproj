@@ -127,8 +127,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Dialogs\SettingsCalc.xaml.cs">
+      <DependentUpon>SettingsCalc.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ZedGraphHelper\StylePoint.cs" />
     <Compile Include="ZedGraphHelper\ZedGraphHelper.cs" />
+    <Page Include="Dialogs\SettingsCalc.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

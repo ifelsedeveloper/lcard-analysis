@@ -21,6 +21,7 @@ using System.Windows.Forms.Integration;
 using DevExpress.XtraCharts;
 using ZedGraph;
 using LGA.Calc;
+using LGA.Dialogs;
 
 namespace LGA
 {
@@ -32,6 +33,8 @@ namespace LGA
 
         LGraphData currentRecord;
         ZedGraphControl graphControl = new ZedGraphControl();
+        private static string tagTabFrequency = "tabFreq";
+
         public MainWindow()
         {
             InitializeComponent();
@@ -111,27 +114,29 @@ namespace LGA
             
         }
 
-        private void CommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        private void Calculate_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             if (currentRecord == null) return;
             lock (currentRecord)
             {
                 RecordCalculation calc = new RecordCalculation(currentRecord);
                 ChannelCalcFrequency calcFreq = calc.getFrequencyCalc();
+                calcFreq.Initialize(Properties.Settings.Default.NumberOfPulses, Properties.Settings.Default.NumberOfSmooth);
                 calcFreq.Caclculate();
-                AddTabItemGraph("Частота вращения от времени", calcFreq.T_vu, calcFreq.Vu, "секунды", "об/мин");
+                
+                AddTabItemGraph(tagTabFrequency,"Частота вращения от времени", calcFreq.T_vu, calcFreq.Vu, "секунды", "об/мин");
             }
             
         }
 
-        private TabItem AddTabItemGraph(string name, double[] x, double[] y, string label_x, string label_y)
+        private TabItem AddTabItemGraph(string tag,string name, double[] x, double[] y, string label_x, string label_y)
         {
             int count = mainContentTab.Items.Count;
-
+            mainContentTab.Items.Remove(mainContentTab.Items.Cast<TabItem>().Where(i => i.Name == tagTabFrequency).SingleOrDefault());
             // create new tab item
             TabItem tab = new TabItem();
-            tab.Header = string.Format(name);
-            tab.Name = string.Format("tab{0}", count);
+            tab.Header = name;
+            tab.Name = tag;
 
             // add controls to tab item, this case I added just a textbox
             // Create a chart.
@@ -164,6 +169,12 @@ namespace LGA
             tab.Content = chart;
             mainContentTab.Items.Add(tab);
             return tab;
+        }
+
+        private void Settings_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            SettingsCalc calc = new SettingsCalc();
+            calc.ShowDialog();
         } 
 
     }

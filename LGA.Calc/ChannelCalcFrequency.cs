@@ -21,7 +21,9 @@ namespace LGA.Calc
             }
         }
 
-        private int number_zub = 360;
+        private int number_zub = 512;
+        private int number_smooth = 65;
+
         double[] fronts;
         double[] data_vu;
 
@@ -39,14 +41,39 @@ namespace LGA.Calc
             get { return vu; }
         }
 
+        public int with_diff = 5;
+        private double[] vu_ac;
+        public double[] Vu_ac
+        {
+            get { return vu_ac; }
+        }
+        private double[] ac;
+        public double[] Ac
+        {
+            get { return ac; }
+        }
+        private double[] t_ac;
+        public double[] T_ac
+        {
+            get { return t_ac; }
+        }
+
+        public double[] degree_ac;
+
         public void Initialize(DataSourceLGraph.LGraphDataChannel data)
         {
             _data = data;
         }
 
+        public void Initialize(int NumberOfPulses, int NumberOfSmooth)
+        {
+            number_zub = NumberOfPulses;
+            number_smooth = NumberOfSmooth;
+        }
         public bool Caclculate()
         {
             CalcFrequency();
+            CalcAcceleration();
             return true;
         }
 
@@ -108,9 +135,48 @@ namespace LGA.Calc
                 t_vu[i] = (fronts[i + 1] + fronts[i]) / 2.0;
                 degree_vu[i] = i + 0.5;
             }
+            if (number_smooth % 2 == 0) number_smooth += 1;
+            vu = HelperOpenCV.SmoothGauss(t_vu, data_vu, number_smooth);
 
-            vu = HelperOpenCV.SmoothGauss(t_vu, data_vu, 3);
+        }
+        void CalcAcceleration()
+        {
+            int kol_ac = t_vu.Length - 2 - 2 * with_diff;
+            vu_ac = new double[kol_ac];
+            ac = new double[kol_ac];
+            t_ac = new double[kol_ac];
+            degree_ac = new double[kol_ac];
+            double k;   //пароизводная частоты вращения по времени
+            double x;   //параметр прямой
+            int i;
+            double v1;
+            double v2;
+            double t1;
+            double t2;
+            int j;
 
+            //расчёт ускорения
+            for (i = 0; i < kol_ac; i++)
+            {
+                v1 = 0;
+                v2 = 0;
+                t1 = 0;
+                t2 = 0;
+                for (j = i; j < i + with_diff; j++)
+                {
+                    v1 += vu[j];
+                    v2 += vu[j + with_diff];
+                    t1 += t_vu[j];
+                    t2 += t_vu[j + with_diff];
+
+                }
+                k = ((v2 - v1) / 60.0) / (t2 - t1);
+                x = (t1 + t2) / (2.0 * with_diff);
+                vu_ac[i] = (v2 + v1) / (2.0 * with_diff);
+                ac[i] = k * 2 * Math.PI;
+                t_ac[i] = x;
+                degree_ac[i] = (degree_vu[i] + degree_vu[i + with_diff - 1]) / 2.0;
+            }
         }
     }
 }

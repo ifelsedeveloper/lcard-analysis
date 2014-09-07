@@ -21,7 +21,7 @@ namespace LGA.Calc
                     case DataSourceLGraph.CannelType.Pressure:
                         res.Add(new ChannelCalcPressure() { Data = channel });
                         break;
-                    case DataSourceLGraph.CannelType.Fuel:
+                    case DataSourceLGraph.CannelType.StartCycle:
                         res.Add(new ChannelCalcPressure() { Data = channel });
                         break;
                 }
