@@ -5,6 +5,7 @@ using System.Text;
 using ZedGraph;
 using System.Drawing;
 using LGA.DataSourceLGraph;
+using LGA.Calc;
 
 namespace LGA.ZedGraphManager
 {
@@ -60,6 +61,44 @@ namespace LGA.ZedGraphManager
             filteredList.SetBounds(filteredXMin, filteredXMax, filteredCount);
             LineItem myCurve = myPane.AddCurve(name, filteredList, color, SymbolType.None);
             
+            // Tell ZedGraph to refigure the
+            // axes since the data have changed
+            //zgc.ZoomOutAll(myPane);
+            zgc.AxisChange();
+            zgc.Invalidate();
+        }
+
+        public static void CreateGraph(ref ZedGraphControl zgc,
+            List<LGACurve> curves,
+            string label_x,
+            string label_y,
+            Color color,
+            string name,
+            string title)
+        {
+            ShowEventsOnGraph(ref zgc);
+            // get a reference to the GraphPane
+            GraphPane myPane = zgc.GraphPane;
+            // Set the Titles
+            myPane.Title.Text = title;
+            myPane.XAxis.Title.Text = label_x;
+            myPane.YAxis.Title.Text = label_y;
+
+            // Очистим список кривых на тот случай, если до этого сигналы уже были нарисованы
+            myPane.CurveList.Clear();
+
+            // Make up some data arrays based on the Sine function
+
+            // Включаем отображение сетки напротив крупных рисок по оси Y
+            myPane.YAxis.MajorGrid.IsVisible = true;
+
+            // Включаем отображение сетки напротив мелких рисок по оси X
+            myPane.YAxis.MinorGrid.IsVisible = true;
+
+            foreach (var curve in curves)
+            {
+                LineItem myCurve = myPane.AddCurve("", curve.X, curve.Y, color, SymbolType.None);
+            }
             // Tell ZedGraph to refigure the
             // axes since the data have changed
             //zgc.ZoomOutAll(myPane);

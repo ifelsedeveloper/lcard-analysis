@@ -35,6 +35,7 @@ namespace LGA
         ZedGraphControl graphControl = new ZedGraphControl();
         private static string tagTabFrequency = "tabFreq";
         private static string tagAccTime = "tabAccTime";
+        private static string tagPressure = "tabPressure";
         private static PointD _selectedPoint = new PointD();
 
         public MainWindow()
@@ -139,10 +140,16 @@ namespace LGA
                     AddTabItemGraph(tagTabFrequency,"Частота вращения от времени", calcFreq.T_vu, calcFreq.Vu, "секунды", "об/мин");
                     AddTabItemGraph(tagAccTime, "Ускорение от времени", calcFreq.T_ac, calcFreq.Ac, "секунды", "рад/с^2");
                     ChannelCalcPressure calcPressure = calc.getPressureCalc();
-                    calcPressure.Initialize(Properties.Settings.Default.StartPoint, Properties.Settings.Default.LengthSegment, Properties.Settings.Default.NumberOfPulses, calcFreq.Fronts);
+                    calcPressure.Initialize(
+                        Properties.Settings.Default.StartPoint, 
+                        Properties.Settings.Default.LengthSegment, 
+                        Properties.Settings.Default.NumberOfPulses,
+                        Properties.Settings.Default.VerticalOffset,
+                        Properties.Settings.Default.SensorConversionFactor,
+                        calcFreq.Fronts);
                     if (calcPressure.Caclculate())
                     {
-
+                        AddTabItemGraph(tagPressure, "Давление масла от угла поворота", calcPressure.Cycles, "градусы", "МПа");
                     }
                 }
 
@@ -165,6 +172,24 @@ namespace LGA
             WindowsFormsHost hostZedGraph = new WindowsFormsHost();
             ZedGraphControl controlGraph = new ZedGraphControl();
             ZedGraphManager.ZedGraphHelper.CreateGraph(ref controlGraph, x, label_x, y, label_y, System.Drawing.Color.FromArgb(0, 240, 0), name, "");
+            hostZedGraph.Child = controlGraph;
+            tab.Content = hostZedGraph;
+            mainContentTab.Items.Add(tab);
+            return tab;
+        }
+
+        private TabItem AddTabItemGraph(string tag, string name, List<LGACurve> curves, string label_x, string label_y)
+        {
+            int count = mainContentTab.Items.Count;
+            mainContentTab.Items.Remove(mainContentTab.Items.Cast<TabItem>().Where(i => i.Name == tag).SingleOrDefault());
+            // create new tab item
+            TabItem tab = new TabItem();
+            tab.Header = name;
+            tab.Name = tag;
+
+            WindowsFormsHost hostZedGraph = new WindowsFormsHost();
+            ZedGraphControl controlGraph = new ZedGraphControl();
+            ZedGraphManager.ZedGraphHelper.CreateGraph(ref controlGraph, curves, label_x, label_y, System.Drawing.Color.FromArgb(0, 240, 0), name, "");
             hostZedGraph.Child = controlGraph;
             tab.Content = hostZedGraph;
             mainContentTab.Items.Add(tab);
