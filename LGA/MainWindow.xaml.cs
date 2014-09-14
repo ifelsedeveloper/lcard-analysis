@@ -109,7 +109,8 @@ namespace LGA
             dataGridFileProperty.ItemsSource = data.HeaderItems;
             dataGridChannelProperty.ItemsSource = data.DataChannels;
             ZedGraphManager.ZedGraphHelper.CreateGraph(ref graphControl, data.DataChannels);
-            
+            Properties.Settings.Default.StartPoint = 0;
+            Properties.Settings.Default.Save();
             foreach (var dataChannel in data.DataChannels)
             {
                 dataChannel.PropertyChanged += dataChannel_PropertyChanged;
@@ -135,7 +136,7 @@ namespace LGA
                 RecordCalculation calc = new RecordCalculation(currentRecord);
                 
                 ChannelCalcFrequency calcFreq = calc.getFrequencyCalc();
-                calcFreq.Initialize(Properties.Settings.Default.NumberOfPulses, Properties.Settings.Default.NumberOfSmooth);
+                calcFreq.Initialize(Properties.Settings.Default.NumberOfPulses, Properties.Settings.Default.NumberOfSmooth, Properties.Settings.Default.NumberOfSegments);
                 if(calcFreq.Caclculate()){
                     AddTabItemGraph(tagTabFrequency,"Частота вращения от времени", calcFreq.T_vu, calcFreq.Vu, "секунды", "об/мин");
                     AddTabItemGraph(tagAccTime, "Ускорение от времени", calcFreq.T_ac, calcFreq.Ac, "секунды", "рад/с^2");
@@ -149,7 +150,7 @@ namespace LGA
                         calcFreq.Fronts);
                     if (calcPressure.Caclculate())
                     {
-                        AddTabItemGraph(tagPressure, "Давление масла от угла поворота", calcPressure.Cycles, "градусы", "МПа");
+                        AddTabItemGraph(tagPressure, "Давление масла от угла поворота", calcPressure.Cycles, "градусы", "КПа");
                     }
                 }
 

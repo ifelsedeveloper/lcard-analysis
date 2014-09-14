@@ -98,12 +98,14 @@ namespace LGA.ZedGraphManager
             foreach (var curve in curves)
             {
                 LineItem myCurve = myPane.AddCurve("", curve.X, curve.Y, color, SymbolType.None);
+                myCurve.Tag = "0wgr";
             }
             // Tell ZedGraph to refigure the
             // axes since the data have changed
             //zgc.ZoomOutAll(myPane);
             zgc.AxisChange();
             zgc.Invalidate();
+            
         }
 
         public static void CreateGraph(ref ZedGraphControl zgc, IList<LGraphDataChannel> channels)
@@ -139,6 +141,7 @@ namespace LGA.ZedGraphManager
                     FilteredPointList filteredList = new FilteredPointList(channels[i].Times, channels[i].Values);
                     filteredList.SetBounds(filteredXMin, filteredXMax, filteredCount);
                     LineItem myCurve = myPane.AddCurve("", filteredList, channels[i].ChannelSystemColor, SymbolType.None);
+                    myCurve.Tag = "wgr";
                 }
             }
 
@@ -147,6 +150,7 @@ namespace LGA.ZedGraphManager
             //zgc.ZoomOutAll(myPane);
             zgc.AxisChange();
             zgc.Invalidate();
+            DrawSelectedPoint(zgc);
         }
 
         /// <summary>
@@ -167,6 +171,12 @@ namespace LGA.ZedGraphManager
             newMenuItem.Click += selectPoint_Click;
             menuStrip.Items.Add(newMenuItem);
             _lastZedgraphControlMenu = sender;
+            double x, y;
+            // Пересчитываем пиксели в координаты на графике
+            // У ZedGraph есть несколько перегруженных методов ReverseTransform.
+            sender.GraphPane.ReverseTransform(mousePt, out x, out y);
+            x = Math.Round(x, 6);
+            _lastShowedPoint = new PointD(x, y);
         }
 
         static void selectPoint_Click(object sender, EventArgs e)
@@ -184,24 +194,25 @@ namespace LGA.ZedGraphManager
                 // Обводка ромбиков будут рисоваться голубым цветом (Color.Blue),
                 // Опорные точки - ромбики (SymbolType.Diamond)
                 myPane.CurveList.RemoveAll(curve => (string)curve.Tag == "selectedPoint");
-                LineItem myCurveInf = myPane.AddCurve("", new double[] { _lastClickedPoint.X }, new double[] { _lastClickedPoint.Y }, System.Drawing.Color.Red, SymbolType.Diamond);
+                LineItem myCurveInf = myPane.AddCurve("", new double[] { _lastClickedPoint.X, _lastClickedPoint.X }, new double[] { myPane.YAxis.Scale.Min, myPane.YAxis.Scale.Max }, System.Drawing.Color.Black, SymbolType.None);
+                myPane.CurveList.Move(0, 999);
                 myCurveInf.Tag = "selectedPoint";
                 // !!!
                 // У кривой линия будет невидимой
-                myCurveInf.Line.IsVisible = false;
+                myCurveInf.Line.IsVisible = true;
 
                 // !!!
                 // Цвет заполнения отметок (ромбиков) - колубой
-                myCurveInf.Symbol.Fill.Color = System.Drawing.Color.Red;
-                myCurveInf.Line.Width = 4;
+                //myCurveInf.Symbol.Fill.Color = System.Drawing.Color.Red;
+                myCurveInf.Line.Width = 2;
                 // !!!
                 // Тип заполнения - сплошная заливка
-                myCurveInf.Symbol.Fill.Type = FillType.Solid;
+                //myCurveInf.Symbol.Fill.Type = FillType.Solid;
                 // !!!
                 // Размер ромбиков
                 myCurveInf.Symbol.Size = 10;
 
-           zgc.AxisChange();
+           //zgc.AxisChange();
            zgc.Invalidate();
                
         }
@@ -244,7 +255,7 @@ namespace LGA.ZedGraphManager
 
             // Сформируем строку
             string result = string.Format("X: {0:F3}\nY: {1:F3}", point.X, point.Y);
-            _lastShowedPoint = new PointD(curve[iPt].X, curve[iPt].Y);
+            //_lastShowedPoint = new PointD(curve[iPt].X, curve[iPt].Y);
             return result;
         }
 

@@ -94,5 +94,17 @@ namespace LGA.Properties {
                 this["SensorConversionFactor"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int NumberOfSegments {
+            get {
+                return ((int)(this["NumberOfSegments"]));
+            }
+            set {
+                this["NumberOfSegments"] = value;
+            }
+        }
     }
 }

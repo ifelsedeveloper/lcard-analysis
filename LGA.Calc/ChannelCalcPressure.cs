@@ -67,7 +67,7 @@ namespace LGA.Calc
         public void Initialize(double startPoint, int period,  int numberOfPulses, double offset, double transform, double[] fronts)
         {
             _startPoint = startPoint;
-            _period = period;
+            _period = Convert.ToInt32((Convert.ToDouble(period / 360.0)) * numberOfPulses);
             _fronts = fronts;
             _initialized = true;
             _numberOfPulses = numberOfPulses;
@@ -100,7 +100,7 @@ namespace LGA.Calc
                         double x,y;
                         GetValueFunc(_fronts[indexFront],_data.Times, _data.Values, out x, out y);
                         xValues.Add((double)degree / (double)_numberOfPulses * 360.0);
-                        yValues.Add((y + indexCycle * _offset)*_transform);
+                        yValues.Add((y) * _transform + indexCycle * _offset);
                     }
                     _cycles.Add(new LGACurve() { X = xValues.ToArray(), Y = yValues.ToArray() });
                 }

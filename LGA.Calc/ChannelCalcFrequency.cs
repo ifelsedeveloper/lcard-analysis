@@ -23,6 +23,7 @@ namespace LGA.Calc
 
         private int number_zub = 512;
         private int number_smooth = 65;
+        private int number_segments = 1000;
 
         double[] fronts;
         public double[] Fronts
@@ -70,10 +71,11 @@ namespace LGA.Calc
             _data = data;
         }
 
-        public void Initialize(int NumberOfPulses, int NumberOfSmooth)
+        public void Initialize(int NumberOfPulses, int NumberOfSmooth, int SegmentsNumber)
         {
             number_zub = NumberOfPulses;
             number_smooth = NumberOfSmooth;
+            number_segments = SegmentsNumber;
         }
         public bool Caclculate()
         {
@@ -103,6 +105,7 @@ namespace LGA.Calc
                             _data.Values[i + 1] > median_value && 
                             _data.Values[i + 2] > median_value; 
                             i++) ;
+                    if (q > number_segments * number_zub) break;
                 }
             }
             kol_front = q;
@@ -114,13 +117,14 @@ namespace LGA.Calc
                 if (_data.Values[i] > median_value && _data.Values[i+1] > median_value && _data.Values[i+2] > median_value)
                 {
                     res[q] = _data.Times[i]; q++; i++;
-                    for (; (i < _data.Values.Length - 4) && 
-                            _data.Values[i] > median_value && 
-                            _data.Values[i + 1] > median_value && 
-                            _data.Values[i + 2] > median_value; 
-                        i++)
-                    { }
+                    for (; (i < _data.Values.Length - 4) &&
+                            _data.Values[i] > median_value &&
+                            _data.Values[i + 1] > median_value &&
+                            _data.Values[i + 2] > median_value;
+                        i++) ;
+
                 }
+                if (q > number_segments * number_zub) break;
             }
 
             return res;
@@ -178,7 +182,7 @@ namespace LGA.Calc
                 k = ((v2 - v1) / 60.0) / (t2 - t1);
                 x = (t1 + t2) / (2.0 * with_diff);
                 vu_ac[i] = (v2 + v1) / (2.0 * with_diff);
-                ac[i] = k * 2 * Math.PI;
+                ac[i] = k * 2 * Math.PI / 60.0;
                 t_ac[i] = x;
                 degree_ac[i] = (degree_vu[i] + degree_vu[i + with_diff - 1]) / 2.0;
             }
