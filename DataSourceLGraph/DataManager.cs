@@ -140,20 +140,17 @@ namespace LGA.DataSourceLGraph
             try
             {
                 LGraphData res = new LGraphData();
-                StreamReader file = new StreamReader(path, System.Text.Encoding.GetEncoding(1251));
+                StreamReader file = new StreamReader(path, Encoding.GetEncoding(1251));
                 List<string> headerLines = new List<string>();
                 int nLine = 0;
-                while (nLine < headers.Length + 1)
+                while (nLine < 100)
                 {
                     string line = file.ReadLine();
-                    if (line.Contains(headers[headers.Length - 1]) || line == null)
+                    if (line == null || line.Contains("Data as Time Sequence"))
                     {
                         break;
                     }
-                    else
-                    {
-                        headerLines.Add(line);
-                    }
+                    headerLines.Add(line);
                     nLine++;
                 }
                 //parsing headers
@@ -191,10 +188,14 @@ namespace LGA.DataSourceLGraph
                 res.InputRateInkHz = findDoubleValue(headerLines, "Input Rate In kHz");
                 res.HeaderItems.Add(new LGraphHeaderItem() { Title = "Частота, КГц", Value = res.InputRateInkHz.ToString() });
 
+                res.TimeMarkersScale = findTextValue(headerLines, "Time markers scale");
+                res.HeaderItems.Add(new LGraphHeaderItem() { Title = "Еденицы измерения времени", Value = res.TimeMarkersScale });
+                res.DataFormat = findTextValue(headerLines, "Data Format");
+
                 res.InputTimeInSec = findDoubleValue(headerLines, "Input Time In Sec");
                 res.HeaderItems.Add(new LGraphHeaderItem() { Title = "Время записи, с", Value = res.InputTimeInSec.ToString() });
 
-                res.TimeMarkersScale = findTextValue(headerLines, "Time markers scale");
+                
 
                 file.Close();
                 return res;

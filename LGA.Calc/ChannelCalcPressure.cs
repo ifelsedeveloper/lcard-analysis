@@ -39,6 +39,7 @@ namespace LGA.Calc
         private int _period = 512;
         private double[] _fronts;
         int _numberOfPulses = 512;
+        int _numberOfSegments = int.MaxValue;
         double _offset = 0;
         double _transform = 1;
         List<LGACurve> _cycles = new List<LGACurve>();
@@ -46,6 +47,16 @@ namespace LGA.Calc
         {
             get { return _cycles; }
         }
+
+        private LGACurve _startPointList = new LGACurve();
+        public LGACurve StartPointList
+        {
+            get
+            {
+                return _startPointList;
+            }
+        }
+
         public DataSourceLGraph.LGraphDataChannel Data
         {
             get
@@ -64,7 +75,7 @@ namespace LGA.Calc
             _data = data;
         }
 
-        public void Initialize(double startPoint, int period,  int numberOfPulses, double offset, double transform, double[] fronts)
+        public void Initialize(double startPoint, int period, int numberOfPulses, double offset, double transform, int numberOfSegments, double[] fronts)
         {
             _startPoint = startPoint;
             _period = Convert.ToInt32((Convert.ToDouble(period / 360.0)) * numberOfPulses);
@@ -73,8 +84,11 @@ namespace LGA.Calc
             _numberOfPulses = numberOfPulses;
             _offset = offset;
             _transform = transform;
+            _numberOfSegments = numberOfSegments;
+            if (_numberOfSegments == 0) _numberOfSegments = int.MaxValue;
         }
 
+        
         public bool Caclculate()
         {
             if (!_initialized) return false;
@@ -88,29 +102,35 @@ namespace LGA.Calc
             if (startIndex < _fronts.Length)
             {
                 int numCycles = (_fronts.Length - startIndex) / _period;
+                _startPointList.X = new double[Math.Min(_numberOfSegments, numCycles) + 1];
+                _startPointList.Y = new double[Math.Min(_numberOfSegments, numCycles) + 1];
                 _lastIndex = 0;
                 _cycles = new List<LGACurve>();
-                for (int indexCycle = 0; indexCycle < numCycles; indexCycle++)
+                for (int indexCycle = 0; indexCycle < numCycles && indexCycle < _numberOfSegments; indexCycle++)
                 {
                     List<double> xValues = new List<double>();
                     List<double> yValues = new List<double>();
                     int degree = 0;
-                    for (int indexFront = startIndex + (indexCycle) * _period; indexFront < _fronts.Length && indexFront < startIndex + (indexCycle + 1) * _period; indexFront++, degree++)
+                    int indexFront = startIndex + (indexCycle)*_period;
+                    for (; indexFront < _fronts.Length && indexFront < startIndex + (indexCycle + 1) * _period; indexFront++, degree++)
                     {
                         double x,y;
                         GetValueFunc(_fronts[indexFront],_data.Times, _data.Values, out x, out y);
                         xValues.Add((double)degree / (double)_numberOfPulses * 360.0);
                         yValues.Add((y) * _transform + indexCycle * _offset);
+                        if (degree == 0)
+                        {
+                            _startPointList.X[indexCycle] = _fronts[indexFront];
+                            _startPointList.Y[indexCycle] = yValues[yValues.Count-1];
+                        }
                     }
-                    _cycles.Add(new LGACurve() { X = xValues.ToArray(), Y = yValues.ToArray() });
+                    _startPointList.X[indexCycle+1] = _fronts[indexFront];
+                    _startPointList.Y[indexCycle+1] = yValues[yValues.Count - 1];
+                    _cycles.Add(new LGACurve { X = xValues.ToArray(), Y = yValues.ToArray() });
                 }
                     return true;
             }
-            else 
-            {
-                return false;
-            }
-            
+            return false;
         }
 
         private static int _lastIndex = 0;
@@ -136,3 +156,5 @@ namespace LGA.Calc
         }
     }
 }
+
+

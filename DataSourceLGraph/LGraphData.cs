@@ -110,6 +110,17 @@ namespace LGA.DataSourceLGraph
             }
         }
 
+        public string _dataFormat;
+        public string DataFormat
+        {
+            get { return _dataFormat; }
+            set
+            {
+                _dataFormat = value;
+                OnPropertyChanged();
+            }
+        }
+
         public double[] time;//время 
         public double[][] ch;//записанные каналы
 

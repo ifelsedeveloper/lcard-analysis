@@ -41,7 +41,7 @@ namespace LGA
         public MainWindow()
         {
             InitializeComponent();
-            ZedGraphManager.ZedGraphHelper.newPointSelected += StartPointSelected;
+            ZedGraphManager.ZedGraphHelper.NewPointSelected += StartPointSelected;
             ZedGraphManager.ZedGraphHelper.AddSelectPointAction(graphControl);
             graphHost.Child = graphControl;
         }
@@ -86,14 +86,14 @@ namespace LGA
                 {
                     // Open document
                     currentAction.Text = "Чтение данных...";
-                    dataManager.ReadDataAsync(filename, new Action<LGraphData>(data =>
+                    dataManager.ReadDataAsync(filename, data =>
                     {
                         Application.Current.Dispatcher.Invoke(new Action(() =>
                         {
                             newFileOpened(data);
                         }));
 
-                    }));
+                    });
                 }
                 else 
                 {
@@ -108,18 +108,19 @@ namespace LGA
             currentAction.Text = "Чтение данных завершено";
             dataGridFileProperty.ItemsSource = data.HeaderItems;
             dataGridChannelProperty.ItemsSource = data.DataChannels;
-            ZedGraphManager.ZedGraphHelper.CreateGraph(ref graphControl, data.DataChannels);
+            ZedGraphManager.ZedGraphHelper.CreateGraph(ref graphControl, currentRecord);
             Properties.Settings.Default.StartPoint = 0;
             Properties.Settings.Default.Save();
             foreach (var dataChannel in data.DataChannels)
             {
                 dataChannel.PropertyChanged += dataChannel_PropertyChanged;
             }
+            ClearResultsByRemovingTabs();
         }
 
         void dataChannel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            ZedGraphManager.ZedGraphHelper.CreateGraph(ref graphControl, currentRecord.DataChannels);
+            ZedGraphManager.ZedGraphHelper.CreateGraph(ref graphControl, currentRecord);
         }
 
 
@@ -136,19 +137,24 @@ namespace LGA
                 RecordCalculation calc = new RecordCalculation(currentRecord);
                 
                 ChannelCalcFrequency calcFreq = calc.getFrequencyCalc();
-                calcFreq.Initialize(Properties.Settings.Default.NumberOfPulses, Properties.Settings.Default.NumberOfSmooth, Properties.Settings.Default.NumberOfSegments);
-                if(calcFreq.Caclculate()){
-                    AddTabItemGraph(tagTabFrequency,"Частота вращения от времени", calcFreq.T_vu, calcFreq.Vu, "секунды", "об/мин");
-                    AddTabItemGraph(tagAccTime, "Ускорение от времени", calcFreq.T_ac, calcFreq.Ac, "секунды", "рад/с^2");
+                calcFreq.Initialize(Properties.Settings.Default.NumberOfPulses, 
+                                    Properties.Settings.Default.NumberOfSmooth);
+                if(calcFreq.Caclculate())
+                {
+                    
                     ChannelCalcPressure calcPressure = calc.getPressureCalc();
                     calcPressure.Initialize(
                         Properties.Settings.Default.StartPoint, 
                         Properties.Settings.Default.LengthSegment, 
-                        Properties.Settings.Default.NumberOfPulses,
-                        Properties.Settings.Default.VerticalOffset,
+                        Properties.Settings.Default.NumberOfPulses,Properties.Settings.Default.VerticalOffset,
                         Properties.Settings.Default.SensorConversionFactor,
+                        Properties.Settings.Default.NumberOfSegments,
                         calcFreq.Fronts);
-                    if (calcPressure.Caclculate())
+                    bool isPressureCalculated = calcPressure.Caclculate();
+                    AddTabItemGraph(tagTabFrequency, "Частота вращения от времени", calcFreq.T_vu, calcFreq.Vu, "секунды", "об/мин", calcPressure.StartPointList.X, calcPressure.StartPointList.Y);
+                    AddTabItemGraph(tagAccTime, "Ускорение от времени", calcFreq.T_ac, calcFreq.Ac, "секунды", "рад/с^2", calcPressure.StartPointList.X, calcPressure.StartPointList.Y);
+                    
+                    if(isPressureCalculated)
                     {
                         AddTabItemGraph(tagPressure, "Давление масла от угла поворота", calcPressure.Cycles, "градусы", "КПа");
                     }
@@ -161,7 +167,15 @@ namespace LGA
             
         }
 
-        private TabItem AddTabItemGraph(string tag,string name, double[] x, double[] y, string label_x, string label_y)
+        private void ClearResultsByRemovingTabs()
+        {
+            List<TabItem> tabItemsToRemove = mainContentTab.Items.Cast<TabItem>().Where(i => (string)i.Tag != "dataSourceGraph").ToList();
+            foreach(var tabItem in tabItemsToRemove){
+                mainContentTab.Items.Remove(tabItem);
+            }
+        }
+
+        private TabItem AddTabItemGraph(string tag, string name, double[] x, double[] y, string label_x, string label_y, double[] eventsX = null, double[] eventsY = null)
         {
             int count = mainContentTab.Items.Count;
             mainContentTab.Items.Remove(mainContentTab.Items.Cast<TabItem>().Where(i => i.Name == tag).SingleOrDefault());
@@ -173,6 +187,11 @@ namespace LGA
             WindowsFormsHost hostZedGraph = new WindowsFormsHost();
             ZedGraphControl controlGraph = new ZedGraphControl();
             ZedGraphManager.ZedGraphHelper.CreateGraph(ref controlGraph, x, label_x, y, label_y, System.Drawing.Color.FromArgb(0, 240, 0), name, "");
+            if (eventsX != null && eventsY != null)
+            {
+                for (int i = 0; i < eventsX.Count(); i++)
+                    ZedGraphManager.ZedGraphHelper.AddNewPointToGraph(controlGraph, eventsX[i], eventsY[i]);
+            }
             hostZedGraph.Child = controlGraph;
             tab.Content = hostZedGraph;
             mainContentTab.Items.Add(tab);

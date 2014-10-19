@@ -34,7 +34,7 @@
             </MenuItem>
         </Menu>
         <TabControl Grid.Row="1" Name="mainContentTab">
-            <TabItem Header="Исходные Данные">
+            <TabItem Header="Исходные Данные" Tag="dataSourceGraph">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="3*"/>

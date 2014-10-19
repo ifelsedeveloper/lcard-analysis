@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +25,6 @@ namespace LGA.Calc
 
         private int number_zub = 512;
         private int number_smooth = 65;
-        private int number_segments = 1000;
 
         double[] fronts;
         public double[] Fronts
@@ -71,16 +72,16 @@ namespace LGA.Calc
             _data = data;
         }
 
-        public void Initialize(int NumberOfPulses, int NumberOfSmooth, int SegmentsNumber)
+        public void Initialize(int NumberOfPulses, int NumberOfSmooth)
         {
             number_zub = NumberOfPulses;
             number_smooth = NumberOfSmooth;
-            number_segments = SegmentsNumber;
         }
         public bool Caclculate()
         {
             CalcFrequency();
             CalcAcceleration();
+            SaveData(fronts, "fronts.txt");
             return true;
         }
 
@@ -105,7 +106,6 @@ namespace LGA.Calc
                             _data.Values[i + 1] > median_value && 
                             _data.Values[i + 2] > median_value; 
                             i++) ;
-                    if (q > number_segments * number_zub) break;
                 }
             }
             kol_front = q;
@@ -124,7 +124,6 @@ namespace LGA.Calc
                         i++) ;
 
                 }
-                if (q > number_segments * number_zub) break;
             }
 
             return res;
@@ -155,7 +154,7 @@ namespace LGA.Calc
             ac = new double[kol_ac];
             t_ac = new double[kol_ac];
             degree_ac = new double[kol_ac];
-            double k;   //пароизводная частоты вращения по времени
+            double k;   //производная частоты вращения по времени
             double x;   //параметр прямой
             int i;
             double v1;
@@ -187,5 +186,19 @@ namespace LGA.Calc
                 degree_ac[i] = (degree_vu[i] + degree_vu[i + with_diff - 1]) / 2.0;
             }
         }
+
+        void SaveData(double[] data, string path)
+        {
+            using (StreamWriter outfile = new StreamWriter(path))
+            {
+                for (int i = 0; i < data.Length; i++)
+                {
+                    outfile.WriteLine(data[i].ToString(CultureInfo.InvariantCulture)); 
+                }
+                outfile.Close();
+            }
+        }
     }
 }
+
+
