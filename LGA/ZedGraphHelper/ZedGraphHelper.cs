@@ -66,7 +66,8 @@ namespace LGA.ZedGraphManager
             
             zgc.AxisChange();
             zgc.Invalidate();
-            DrawSelectedPoint(zgc);}
+            DrawSelectedPoint(zgc);
+        }
 
         public static void CreateGraph(ref ZedGraphControl zgc,
             List<LGACurve> curves,
@@ -109,7 +110,7 @@ namespace LGA.ZedGraphManager
             DrawSelectedPoint(zgc);
         }
 
-        public static void CreateGraph(ref ZedGraphControl zgc, LGraphData data)
+        public static void CreateGraph(ref ZedGraphControl zgc, LGraphData data, int maximumPointsToDisplay = 0, int numberOfFrameToDisplay = -1, int zoomDelimeter = 1, double [] xPoints = null, double[] yPoints = null)
         {
             ShowEventsOnGraph(ref zgc, 3);
             // get a reference to the GraphPane
@@ -129,20 +130,79 @@ namespace LGA.ZedGraphManager
             // Включаем отображение сетки напротив мелких рисок по оси X
             myPane.YAxis.MinorGrid.IsVisible = true;
 
-            double filteredXMin = 0;
-            double filteredXMax = data.DataChannels[0].Times[data.DataChannels[0].Times.Count() - 1];
-
-            // Нам достаточно 20-ти точек
-            int filteredCount = 15000;
-
-            for (int i = 0; i < data.DataChannels.Count(); i++)
+            if (maximumPointsToDisplay == -1)
             {
-                if (data.DataChannels[i].Enabled)
+                double filteredXMin = 0;
+                double filteredXMax = data.DataChannels[0].Times[data.DataChannels[0].Times.Count() - 1];
+
+                // Нам достаточно 20-ти точек
+                int filteredCount = 15000;
+
+                for (int i = 0; i < data.DataChannels.Count(); i++)
                 {
-                    var filteredList = new FilteredPointList(data.DataChannels[i].Times, data.DataChannels[i].Values);
-                    filteredList.SetBounds(filteredXMin, filteredXMax, filteredCount);
-                    LineItem myCurve = myPane.AddCurve("", filteredList, data.DataChannels[i].ChannelSystemColor, SymbolType.None);
-                    myCurve.Tag = "wgr";
+                    if (data.DataChannels[i].Enabled)
+                    {
+                        var filteredList = new FilteredPointList(data.DataChannels[i].Times, data.DataChannels[i].Values);
+                        filteredList.SetBounds(filteredXMin, filteredXMax, filteredCount);
+                        LineItem myCurve = myPane.AddCurve("", filteredList, data.DataChannels[i].ChannelSystemColor, SymbolType.None);
+                        myCurve.Tag = "wgr";
+                    }
+                }
+            }
+
+            if (numberOfFrameToDisplay != -1)
+            {
+                for (int i = 0; i < data.DataChannels.Count(); i++)
+                {
+                    if (data.DataChannels[i].Enabled)
+                    {
+                        int k = 0;
+                        List<double> x = new List<double>();
+                        List<double> y = new List<double>();
+                        int startPoint = numberOfFrameToDisplay*(maximumPointsToDisplay/zoomDelimeter);
+                        //create subarray
+                        if ((numberOfFrameToDisplay*(maximumPointsToDisplay/zoomDelimeter) + maximumPointsToDisplay) > data.KadrsNumber) 
+                            startPoint = data.KadrsNumber - maximumPointsToDisplay - 1;
+                        for (int j = startPoint; j < data.KadrsNumber && k < maximumPointsToDisplay; j++)
+                        {
+                            x.Add(data.DataChannels[i].Times[j]);
+                            y.Add(data.DataChannels[i].Values[j]);
+                            k++;
+                        }
+                        var xValues = x.ToArray();
+                        var yValues = y.ToArray();
+                        myPane.XAxis.Scale.Min = xValues.Min();
+                        myPane.XAxis.Scale.Max = xValues.Max();
+                        LineItem myCurve = myPane.AddCurve("", xValues, yValues, data.DataChannels[i].ChannelSystemColor, SymbolType.None);
+                        myCurve.Tag = "wgr";
+                    }
+
+                }
+                if (xPoints != null && yPoints != null)
+                {
+                    List<double> xDrawList = new List<double>();
+                    List<double> yDrawList = new List<double>();
+                    for(int i=0; i < xPoints.Count(); i++)
+                    {
+                        if (xPoints[i] > myPane.XAxis.Scale.Max) break;
+                        if (xPoints[i] > myPane.XAxis.Scale.Min)
+                        {
+                            xDrawList.Add(xPoints[i]);
+                            yDrawList.Add(yPoints[i]);
+                        }
+                    }
+
+                    LineItem myCurveInf = myPane.AddCurve("", xDrawList.ToArray(), yDrawList.ToArray(), System.Drawing.Color.DarkRed, SymbolType.Triangle);
+
+                    myCurveInf.Symbol.Fill.Color = System.Drawing.Color.SeaGreen;
+                    myCurveInf.Line.IsVisible = false;
+                    myCurveInf.Line.Width = 3;
+                    // !!!
+                    // Тип заполнения - сплошная заливка
+                    myCurveInf.Symbol.Fill.Type = FillType.Solid;
+                    // !!!
+                    // Размер ромбиков
+                    myCurveInf.Symbol.Size = 6;
                 }
             }
 
@@ -153,7 +213,6 @@ namespace LGA.ZedGraphManager
             zgc.Invalidate();
             DrawSelectedPoint(zgc);
         }
-
         /// <summary>
         /// Обработчик события, который вызывается, перед показом контекстного меню
         /// </summary>

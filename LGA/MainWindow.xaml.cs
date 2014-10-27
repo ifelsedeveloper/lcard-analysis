@@ -37,13 +37,15 @@ namespace LGA
         private static string tagAccTime = "tabAccTime";
         private static string tagPressure = "tabPressure";
         private static PointD _selectedPoint = new PointD();
-
+        private ChannelCalcFrequency calcFreq;
         public MainWindow()
         {
             InitializeComponent();
             ZedGraphManager.ZedGraphHelper.NewPointSelected += StartPointSelected;
             ZedGraphManager.ZedGraphHelper.AddSelectPointAction(graphControl);
             graphHost.Child = graphControl;
+            Properties.Settings.Default.NumberOfSegmentToView = 0;
+            Properties.Settings.Default.Save();
         }
 
         private void StartPointSelected(ZedGraphControl zgc, PointD value)
@@ -108,7 +110,7 @@ namespace LGA
             currentAction.Text = "Чтение данных завершено";
             dataGridFileProperty.ItemsSource = data.HeaderItems;
             dataGridChannelProperty.ItemsSource = data.DataChannels;
-            ZedGraphManager.ZedGraphHelper.CreateGraph(ref graphControl, currentRecord);
+            DisplayFrame();
             Properties.Settings.Default.StartPoint = 0;
             Properties.Settings.Default.Save();
             foreach (var dataChannel in data.DataChannels)
@@ -116,13 +118,20 @@ namespace LGA
                 dataChannel.PropertyChanged += dataChannel_PropertyChanged;
             }
             ClearResultsByRemovingTabs();
+            Properties.Settings.Default.NumberOfSegmentToView = 0;
+            Properties.Settings.Default.Save();
+            SliderDisplayFrame.Value = 0;
+            if (currentRecord != null && Properties.Settings.Default.NumberPointsToDisplay != 0)
+            {
+                SliderDisplayFrame.Maximum = Convert.ToInt32(currentRecord.KadrsNumber / Properties.Settings.Default.NumberPointsToDisplay * Properties.Settings.Default.ZoomDiffDelimeter);
+            }
+            calcFreq = null;
         }
 
         void dataChannel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            ZedGraphManager.ZedGraphHelper.CreateGraph(ref graphControl, currentRecord);
+            DisplayFrame();
         }
-
 
         private void AboutCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
@@ -136,7 +145,7 @@ namespace LGA
             {
                 RecordCalculation calc = new RecordCalculation(currentRecord);
                 
-                ChannelCalcFrequency calcFreq = calc.getFrequencyCalc();
+                calcFreq = calc.getFrequencyCalc();
                 calcFreq.Initialize(Properties.Settings.Default.NumberOfPulses, 
                                     Properties.Settings.Default.NumberOfSmooth);
                 if(calcFreq.Caclculate())
@@ -159,9 +168,6 @@ namespace LGA
                         AddTabItemGraph(tagPressure, "Давление масла от угла поворота", calcPressure.Cycles, "градусы", "КПа");
                     }
                 }
-
-                
-
                 
             }
             
@@ -170,7 +176,8 @@ namespace LGA
         private void ClearResultsByRemovingTabs()
         {
             List<TabItem> tabItemsToRemove = mainContentTab.Items.Cast<TabItem>().Where(i => (string)i.Tag != "dataSourceGraph").ToList();
-            foreach(var tabItem in tabItemsToRemove){
+            foreach(var tabItem in tabItemsToRemove)
+            {
                 mainContentTab.Items.Remove(tabItem);
             }
         }
@@ -220,7 +227,46 @@ namespace LGA
         {
             SettingsCalc calc = new SettingsCalc();
             calc.ShowDialog();
-        } 
+        }
 
+        private void NumberOfFrameToDisplay_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Properties.Settings.Default.Save();
+            DisplayFrame();
+        }
+
+        private void NumberOfPulses_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            Properties.Settings.Default.Save();
+            if (SliderDisplayFrame != null)
+            if (currentRecord != null && Properties.Settings.Default.NumberPointsToDisplay != 0)
+            {
+                SliderDisplayFrame.Maximum = Convert.ToInt32(currentRecord.KadrsNumber / Properties.Settings.Default.NumberPointsToDisplay * Properties.Settings.Default.ZoomDiffDelimeter);
+            }
+            else
+            {
+                SliderDisplayFrame.Maximum = 1;
+            }
+        }
+
+        private void NumberOfFrame_OnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            Properties.Settings.Default.Save();
+            DisplayFrame();
+        }
+
+        private void DisplayFrame()
+        {
+            double[] xFronts = null;
+            double[] yFronts = null;
+            if (calcFreq != null)
+            {
+                xFronts = calcFreq.Fronts;
+                yFronts = calcFreq.FrontsY;
+            }
+            if (currentRecord != null)
+                ZedGraphManager.ZedGraphHelper.CreateGraph(ref graphControl, currentRecord, Properties.Settings.Default.NumberPointsToDisplay, Properties.Settings.Default.NumberOfSegmentToView, Properties.Settings.Default.ZoomDiffDelimeter, xFronts, yFronts);
+        }
     }
 }
+

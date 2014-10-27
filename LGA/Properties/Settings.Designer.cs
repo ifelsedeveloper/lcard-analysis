@@ -106,5 +106,41 @@ namespace LGA.Properties {
                 this["NumberOfSegments"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100000")]
+        public int NumberPointsToDisplay {
+            get {
+                return ((int)(this["NumberPointsToDisplay"]));
+            }
+            set {
+                this["NumberPointsToDisplay"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int NumberOfSegmentToView {
+            get {
+                return ((int)(this["NumberOfSegmentToView"]));
+            }
+            set {
+                this["NumberOfSegmentToView"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int ZoomDiffDelimeter {
+            get {
+                return ((int)(this["ZoomDiffDelimeter"]));
+            }
+            set {
+                this["ZoomDiffDelimeter"] = value;
+            }
+        }
     }
 }
